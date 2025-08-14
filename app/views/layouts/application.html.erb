@@ -23,6 +23,11 @@
   </head>
 
   <body>
+    <nav>
+      <%= link_to "Gossips", gossips_path %> |
+      <%= link_to "Villes", cities_path %> |
+      <%= link_to "Utilisateurs", users_path %>
+    </nav>
     <%= yield %>
   </body>
 </html>

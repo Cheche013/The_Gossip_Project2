@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @gossip %>
+
+<div>
+  <%= link_to "Edit this gossip", edit_gossip_path(@gossip) %> |
+  <%= link_to "Back to gossips", gossips_path %>
+
+  <%= button_to "Destroy this gossip", @gossip, method: :delete %>
+</div>
