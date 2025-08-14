@@ -23,11 +23,19 @@
   </head>
 
   <body>
-    <nav>
-      <%= link_to "Gossips", gossips_path %> |
-      <%= link_to "Villes", cities_path %> |
-      <%= link_to "Utilisateurs", users_path %>
-    </nav>
+    <nav style="margin-bottom:1rem;">
+  <%= link_to "Gossips", gossips_path %> |
+  <%= link_to "Villes",  cities_path %> |
+  <% if logged_in? %>
+    Bonjour, <%= current_user.first_name.presence || current_user.email %> |
+    <%= button_to "Se déconnecter", logout_path, method: :delete,
+          form: { style: "display:inline", data: { turbo_confirm: "Se déconnecter ?" } } %>
+  <% else %>
+    <%= link_to "S'inscrire", new_user_path %> |
+    <%= link_to "Se connecter", login_path %>
+  <% end %>
+</nav>
+
+
     <%= yield %>
   </body>
-</html>

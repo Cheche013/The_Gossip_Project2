@@ -1,14 +1,15 @@
 class GossipsController < ApplicationController
-  before_action :set_gossip, only: %i[ show edit update destroy ]
+  before_action :authenticate_user!, only: [:new, :create, :show, :edit, :update, :destroy]  # accès réservé aux connectés
+  before_action :set_gossip,        only: %i[ show edit update destroy ]
+  before_action :authorize_owner!,  only: %i[ edit update destroy ]                           # seul l’auteur peut modifier/supprimer
 
-  # GET /gossips or /gossips.json
+  # GET /gossips
   def index
     @gossips = Gossip.all
   end
 
-  # GET /gossips/1 or /gossips/1.json
-  def show
-  end
+  # GET /gossips/1
+  def show; end
 
   # GET /gossips/new
   def new
@@ -16,13 +17,12 @@ class GossipsController < ApplicationController
   end
 
   # GET /gossips/1/edit
-  def edit
-  end
+  def edit; end
 
-  # POST /gossips or /gossips.json
+  # POST /gossips
   def create
     @gossip = Gossip.new(gossip_params)
-    @gossip.user_id = User.all.sample.id
+    @gossip.user = current_user  # associer l’auteur connecté
 
     respond_to do |format|
       if @gossip.save
@@ -35,7 +35,7 @@ class GossipsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /gossips/1 or /gossips/1.json
+  # PATCH/PUT /gossips/1
   def update
     respond_to do |format|
       if @gossip.update(gossip_params)
@@ -48,10 +48,9 @@ class GossipsController < ApplicationController
     end
   end
 
-  # DELETE /gossips/1 or /gossips/1.json
+  # DELETE /gossips/1
   def destroy
     @gossip.destroy!
-
     respond_to do |format|
       format.html { redirect_to gossips_path, notice: "Gossip was successfully destroyed.", status: :see_other }
       format.json { head :no_content }
@@ -59,13 +58,19 @@ class GossipsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_gossip
-      @gossip = Gossip.find(params.expect(:id))
-    end
 
-    # Only allow a list of trusted parameters through.
-    def gossip_params
-      params.expect(gossip: [ :title, :content ])
-    end
+  def set_gossip
+    @gossip = Gossip.find(params[:id])  # FIX : pas de params.expect
+  end
+
+  def gossip_params
+    params.require(:gossip).permit(:title, :content, :city_id)  # pas de :user_id ici
+  end
+
+  def authorize_owner!
+    return if @gossip.user == current_user
+
+    flash[:alert] = "Accès refusé : tu n'es pas l'auteur de ce potin."
+    redirect_to @gossip
+  end
 end

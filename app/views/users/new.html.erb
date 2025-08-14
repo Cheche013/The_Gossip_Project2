@@ -1,11 +1,14 @@
-<% content_for :title, "New user" %>
+<%# MODIF THP : titre plus parlant pour le signup %>
+<% content_for :title, "Créer mon compte" %>
 
-<h1>New user</h1>
+<%# MODIF THP : heading cohérent %>
+<h1>Créer mon compte</h1>
 
 <%= render "form", user: @user %>
 
 <br>
 
 <div>
-  <%= link_to "Back to users", users_path %>
+  <%# MODIF THP : on ne renvoie plus vers users_path (index non exposé) mais vers l’accueil %>
+  <%= link_to "Retour à l’accueil", root_path %>
 </div>

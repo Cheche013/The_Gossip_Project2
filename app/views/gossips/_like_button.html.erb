@@ -1,0 +1,18 @@
+<%# app/views/gossips/_like_button.html.erb %>
+<%# Attendu : local 'gossip:' %>
+
+<% count = gossip.likes.count %>
+
+<% if logged_in? %>
+  <% if (like = gossip.likes.find_by(user: current_user)) %>
+    <%= button_to "Je n'aime plus (#{count})",
+                  gossip_like_path(gossip, like),
+                  method: :delete %>
+  <% else %>
+    <%= button_to "J'aime (#{count})",
+                  gossip_likes_path(gossip),
+                  method: :post %>
+  <% end %>
+<% else %>
+  <%= link_to "J'aime (#{count})", login_path %>
+<% end %>

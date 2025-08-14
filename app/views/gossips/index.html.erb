@@ -7,10 +7,24 @@
 <div id="gossips">
   <% @gossips.each do |gossip| %>
     <%= render gossip %>
+
+    <div style="margin: .5rem 0;">
+      <%= render "like_button", gossip: gossip %>
+    </div>
+
     <p>
-      <%= link_to "Show this gossip", gossip %>
+      <%= link_to "Voir", gossip %>
+      <% if logged_in? && current_user == gossip.user %>
+        | <%= link_to "Éditer", edit_gossip_path(gossip) %>
+        | <%= button_to "Supprimer", gossip, method: :delete,
+              form: { data: { turbo_confirm: "Supprimer ?" } } %>
+      <% end %>
     </p>
+
+    <hr>
   <% end %>
 </div>
 
-<%= link_to "New gossip", new_gossip_path %>
+<% if logged_in? %>
+  <%= link_to "New gossip", new_gossip_path %>
+<% end %>

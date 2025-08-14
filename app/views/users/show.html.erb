@@ -1,10 +1,73 @@
+<%# app/views/gossips/show.html.erb %>
+<% gossip = @gossip %> <%# pour pouvoir utiliser 'gossip' dans le render du like_button %>
+
 <p style="color: green"><%= notice %></p>
 
-<%= render @user %>
+<h1><%= gossip.title %></h1>
 
+<p><%= simple_format(gossip.content) %></p>
+
+<!-- Auteur du potin -->
+<p>
+  <strong>Auteur :</strong>
+  <%= gossip.user&.first_name %> <%= gossip.user&.last_name %>
+</p>
+
+<hr>
+
+<!-- Boutons Like / Unlike + compteur -->
+<div style="margin: .75rem 0;">
+  <%= render "gossips/like_button", gossip: gossip %>
+</div>
+
+<hr>
+
+<!-- Formulaire de commentaire -->
+<h3>Ajouter un commentaire</h3>
+
+<% if logged_in? %>
+  <%= form_with(model: [gossip, Comment.new], local: true) do |f| %>
+    <div>
+      <%= f.label :content, "Ton commentaire", style: "display:block" %>
+      <%= f.text_area :content %>
+    </div>
+    <div>
+      <%= f.submit "Commenter" %>
+    </div>
+  <% end %>
+<% else %>
+  <p><%= link_to "Connecte-toi pour commenter", login_path %></p>
+<% end %>
+
+<!-- Liste des commentaires -->
+<h3>Commentaires</h3>
+
+<% if gossip.comments.any? %>
+  <% gossip.comments.each do |c| %>
+    <div style="margin-bottom: 0.75rem;">
+      <p style="margin:0;">
+        <strong><%= c.user&.first_name || "Anonyme" %> :</strong>
+        <%= c.content %>
+      </p>
+      <small>
+        <%= (l(c.created_at, format: :short) rescue c.created_at.strftime("%Y-%m-%d %H:%M")) %>
+      </small>
+    </div>
+  <% end %>
+<% else %>
+  <p>Aucun commentaire pour l’instant.</p>
+<% end %>
+
+<hr>
+
+<!-- Liens de navigation + actions réservées à l'auteur -->
 <div>
-  <%= link_to "Edit this user", edit_user_path(@user) %> |
-  <%= link_to "Back to users", users_path %>
-
-  <%= button_to "Destroy this user", @user, method: :delete %>
+  <%= link_to "Retour aux gossips", gossips_path %>
+  <% if logged_in? && current_user == gossip.user %>
+    <span> | </span>
+    <%= link_to "Éditer", edit_gossip_path(gossip) %>
+    <span> | </span>
+    <%= button_to "Supprimer", gossip, method: :delete,
+          form: { data: { turbo_confirm: "Supprimer ce potin ?" } } %>
+  <% end %>
 </div>

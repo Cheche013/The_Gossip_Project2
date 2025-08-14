@@ -1,10 +1,61 @@
+<%# app/views/gossips/show.html.erb %>
+
 <p style="color: green"><%= notice %></p>
 
-<%= render @gossip %>
+<h1><%= @gossip.title %></h1>
 
+<p><%= simple_format(@gossip.content) %></p>
+
+<!-- AJOUT : auteur du potin -->
+<p>
+  <strong>Auteur :</strong>
+  <%= @gossip.user&.first_name %> <%= @gossip.user&.last_name %>
+</p>
+
+<hr>
+
+<!-- AJOUT : formulaire de commentaire -->
+<h3>Ajouter un commentaire</h3>
+
+<% if logged_in? %>
+  <%= form_with(model: [@gossip, Comment.new], local: true) do |f| %>
+    <div>
+      <%= f.label :content, "Ton commentaire", style: "display:block" %>
+      <%= f.text_area :content %>
+    </div>
+    <div>
+      <%= f.submit "Commenter" %>
+    </div>
+  <% end %>
+<% else %>
+  <p><%= link_to "Connecte-toi pour commenter", login_path %></p>
+<% end %>
+
+<!-- AJOUT : liste des commentaires -->
+<h3>Commentaires</h3>
+
+<% if @gossip.comments.any? %>
+  <% @gossip.comments.each do |c| %>
+    <div style="margin-bottom: 0.75rem;">
+      <p style="margin:0;">
+        <strong><%= c.user&.first_name || "Anonyme" %> :</strong>
+        <%= c.content %>
+      </p>
+      <small><%= l(c.created_at, format: :short) rescue c.created_at.to_s %></small>
+    </div>
+  <% end %>
+<% else %>
+  <p>Aucun commentaire pour l’instant.</p>
+<% end %>
+
+<hr>
+
+<!-- On gardera les liens d’édition/suppression pour l’instant.
+     À l’étape 5, on les affichera seulement à l’auteur. -->
 <div>
-  <%= link_to "Edit this gossip", edit_gossip_path(@gossip) %> |
-  <%= link_to "Back to gossips", gossips_path %>
-
-  <%= button_to "Destroy this gossip", @gossip, method: :delete %>
+  <%= link_to "Retour aux gossips", gossips_path %>
+  <span> | </span>
+  <%= link_to "Éditer", edit_gossip_path(@gossip) %>
+  <span> | </span>
+  <%= button_to "Supprimer", @gossip, method: :delete, form: { data: { turbo_confirm: "Supprimer ce potin ?" } } %>
 </div>
